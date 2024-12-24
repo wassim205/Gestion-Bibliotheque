@@ -23,7 +23,7 @@
             <form action="Controllers/sign-upController.php" method="POST">
             <div class="mt-8 flex items-center justify-between ">
                 <span class="border-b w-1/5 lg:w-1/4 "></span>
-                <a href="#" class="text-xs text-center text-gray-500 uppercase">Regester</a>
+                <a class="text-xs text-center text-gray-500 uppercase">Regester</a>
                 <span class="border-b w-1/5 lg:w-1/4"></span>
                 
             </div>
