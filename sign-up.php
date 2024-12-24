@@ -25,7 +25,6 @@
                 <span class="border-b w-1/5 lg:w-1/4 "></span>
                 <a class="text-xs text-center text-gray-500 uppercase">Regester</a>
                 <span class="border-b w-1/5 lg:w-1/4"></span>
-                
             </div>
             <?php if (isset($_GET['error'])): ?>
                 <div id="error-message" class="text-red-500 mb-4">
