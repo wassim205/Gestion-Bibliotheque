@@ -5,7 +5,7 @@ require_once '../Class/UserClass.php';
 
 session_start();
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
     $database = new Database();
     $db = $database->connect();
 
@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $_SESSION['user_id'] = $loggedInUser['id'];
         $_SESSION['email'] = $loggedInUser['email'];
         $_SESSION['role'] = $loggedInUser['role'];
-        if($_SESSION['role']){
+        if($_SESSION['role'] == 'admin'){
             header('Location: dashboard.php');
         }
         else{

@@ -75,7 +75,6 @@ class User {
             header('Location: ../login.php?message=identifiants_incorrects');
             exit();
         }
-        // return false;
     }
 
 
@@ -122,7 +121,6 @@ class User {
         }
         else{
             header('Location: ../sign-up.php?error=erreur_inscription');
-            // header('Location: inscription.php?error=une_erreur_est_survenue');
             exit;
         }
 
