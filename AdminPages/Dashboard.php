@@ -1,3 +1,17 @@
+<?php
+require '../Class/DatabaseClass.php';
+require '../AdminController/homepagecontroller.php';
+
+$database = new Database();
+$db = $database->connect();
+
+$admin = new Admin($db);
+$userCount = $admin->getUsersCount();
+$booksCount = $admin->getBooksNumber();
+$availableBooks = $admin->getAvailableBooks();
+$borrowedBooks = $admin->borrowedBooks();
+?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -43,19 +57,19 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     <div class="bg-white p-6 rounded-lg shadow-md">
                         <h3 class="text-sm text-gray-500">Total Users</h3>
-                        <!-- <p class="text-2xl font-bold"><?php echo $user_count; ?></p> -->
+                        <p class="text-2xl font-bold"><?php echo $userCount; ?></p>
                     </div>
                     <div class="bg-white p-6 rounded-lg shadow-md">
                         <h3 class="text-sm text-gray-500">The number of Books</h3>
-                        <!-- <p class="text-2xl font-bold"><?php echo $projects_Published ?></p> -->
+                        <p class="text-2xl font-bold"><?php echo $booksCount ?></p>
                     </div>
                     <div class="bg-white p-6 rounded-lg shadow-md">
                         <h3 class="text-sm text-gray-500">The available books</h3>
-                        <!-- <p class="text-2xl font-bold"><?php  echo $total_freelancers?></p> -->
+                        <p class="text-2xl font-bold"><?php  echo $availableBooks?></p>
                     </div>
                     <div class="bg-white p-6 rounded-lg shadow-md">
                         <h3 class="text-sm text-gray-500">Borrowed books</h3>
-                        <!-- <p class="text-2xl font-bold"><?php  echo $pending_offers?></p> -->
+                        <p class="text-2xl font-bold"><?php  echo $borrowedBooks?></p>
                     </div>
                 </div>
 
@@ -95,6 +109,7 @@
             </main>
         </div>
     </div>
-</body>
 
+
+  </body>
 </html>
