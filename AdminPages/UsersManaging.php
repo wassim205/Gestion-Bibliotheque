@@ -1,3 +1,15 @@
+<?php
+require '../Class/DatabaseClass.php';
+require '../AdminController/homepagecontroller.php';
+
+$database = new Database();
+$db = $database->connect();
+
+$admin = new Admin($db);
+$users = $admin->displayUsers();
+
+?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -66,18 +78,22 @@
                             </tr>
                         </thead>
                         <tbody>
+                            <?php foreach($users as $user) : ?>
                                 <tr class="border-b hover:bg-gray-100">
-                                    <td class="py-2 px-4">Wassim</td>
-                                    <td class="py-2 px-4">wassim@gmail.com</td>
-                                     <td class="py-2 px-4">User</td>
+                                    <td class="py-2 px-4"><?php echo $user['name']; ?></td>
+                                    <td class="py-2 px-4"><?php echo $user['email']; ?></td>
+                                     <td class="py-2 px-4"><?php echo $user['role']; ?></td>
                                      <td class="py-2 px-4"><button class="text-blue-400 hover:underline">Change Role</button></td>
                                 </tr>
+                                <?php endforeach ?>
                         </tbody>
                     </table>
                     </div>
             </main>
         </div>
     </div>
+
+    
 </body>
 
 </html>
