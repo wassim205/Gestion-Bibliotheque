@@ -29,8 +29,8 @@ $users = $admin->displayUsers();
             </div>
             <nav>
                 <ul class="space-y-4 p-4">
-                    <li><a href="dashboard.php" class="flex items-center gap-2 text-lg hover:bg-blue-500 p-2 rounded"><span>🏠</span> Home</a></li>
-                    <li><a href="users.php" class="flex items-center font-bold gap-2 text-lg hover:bg-blue-500 p-2 rounded"><span>📋</span> Users</a></li>
+                    <li><a href="Dashboard.php" class="flex items-center gap-2 text-lg hover:bg-blue-500 p-2 rounded"><span>🏠</span> Home</a></li>
+                    <li><a href="UsersManaging.php" class="flex items-center font-bold gap-2 text-lg hover:bg-blue-500 p-2 rounded"><span>📋</span> Users</a></li>
                     <li><a href="Books.php" class="flex items-center gap-2 text-lg hover:bg-blue-500 p-2 rounded"><span>📁</span> Books</a></li>
                 </ul>
             </nav>
@@ -41,7 +41,7 @@ $users = $admin->displayUsers();
                 <h2 class="text-lg font-bold text-gray-800">Users Overview</h2>
                 <div class="flex items-center space-x-4">
                     <input type="text" placeholder="Search users..." class="py-1 px-3 border rounded-lg text-sm">
-                    <a class="bg-blue-600 text-white py-1 px-3 rounded-lg" href="logout.php">Log Out</a>
+                    <a class="bg-blue-600 text-white py-1 px-3 rounded-lg" href="../logout.php">Log Out</a>
                 </div>
             </header>
 

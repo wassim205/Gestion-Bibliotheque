@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
         $_SESSION['email'] = $loggedInUser['email'];
         $_SESSION['role'] = $loggedInUser['role'];
         if($_SESSION['role'] == 'admin'){
-            header('Location: dashboard.php');
+            header('Location: ../AdminPages/Dashboard.php');
         }
         else{
             header('Location: userpage.php');

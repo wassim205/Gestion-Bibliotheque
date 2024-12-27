@@ -105,6 +105,30 @@ class Admin extends User{
         return isset($results) ? $results : null;
     }
 
+    public function topBorrowedBooks(){
+        $database = new Database();
+        $db = $database->connect();
+    
+        $query = "
+        SELECT books.title, books.author, COUNT(borrowings.book_id) as borrow_count 
+        FROM borrowings 
+        JOIN books ON borrowings.book_id = books.id 
+        GROUP BY borrowings.book_id 
+        ORDER BY borrow_count DESC 
+        LIMIT 3
+    ";
+    
+    $stmt = $db->prepare($query);
+    
+    if ($stmt->execute()) {
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return isset($results) ? $results : null;
+    } else {
+        // Handle error
+        return null;
+    }
+}
+
 }
 
 
