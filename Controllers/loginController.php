@@ -2,7 +2,6 @@
 require_once '../Class/DatabaseClass.php';
 require_once '../Class/UserClass.php';
 
-
 session_start();
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
