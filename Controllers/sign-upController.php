@@ -8,6 +8,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['register'])) {
 
     $user = new User($db);
     $user->setEmail($_POST['email']);
+    $user->setName($_POST['user_name']);
     $user->setPassword($_POST['password']);
 
     $user->registerUser();

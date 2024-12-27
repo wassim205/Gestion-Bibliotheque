@@ -6,10 +6,15 @@ class User {
     private $name;
     private $email;
     private $password;
-    private $role = "user";
+    private $role;
 
-    function __construct($db) {
+    function __construct($db, $id = null, $name = null, $email = null, $password = null, $role = "user") {
         $this->conn = $db;
+        $this->id = $id;
+        $this->name = $name;
+        $this->email = $email;
+        $this->password = $password;
+        $this->role = $role;
     }
 
     function getId() {
@@ -83,10 +88,12 @@ class User {
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
 
-        if ($stmt->rowCount() == 0) {
+        $isFirstUser = $stmt->fetchColumn() == 0;
+
+        if ($isFirstUser) {
             $this->role = "admin";
             $this->register();
-            exit;
+            return;
         }
 
         $query = "SELECT * FROM {$this->table} WHERE email = :email";
@@ -106,12 +113,13 @@ class User {
 
     function register() {
 
-        $query = "INSERT INTO {$this->table} (email, password ,role) VALUES (:email, :password ,:role)";
+        $query = "INSERT INTO {$this->table} (email,name, password ,role) VALUES (:email, :name, :password ,:role)";
         $stmt = $this->conn->prepare($query);
 
         $hashedPassword = password_hash($this->password, PASSWORD_DEFAULT);
 
         $stmt->bindParam(':email', $this->email);
+        $stmt->bindParam(':name', $this->name);
         $stmt->bindParam(':role', $this->role);
         $stmt->bindParam(':password', $hashedPassword);
 
@@ -128,3 +136,4 @@ class User {
     }
 }
 ?>
+
