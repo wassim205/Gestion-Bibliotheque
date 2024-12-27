@@ -113,18 +113,24 @@ $books = $bookController->getAllBooks();
                         <span class="font-semibold text-gray-700 text-base dark:text-white">Available Books</span>
                     </div>
                     <div class="flex items-center justify-between">
-                    <select name="category" id="" class="font-semibold text-gray-700 text-base dark:text-white">
-                        <option value="all">All Categories</option>
-                        <option value="Romance">Romance</option>
-                        <option value="Fantasy">Fantasy</option>
-                        <option value="Horror">Horror</option>
-                    </select>
-                    <select name="filtrage" id="" class="font-semibold text-gray-700 text-base dark:text-white">
-                        <option value="all">All Books</option>
-                        <option value="Available">Available Books</option>
-                        <option value="inAvalbele">InAvailable Books</option>
-                    </select>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-4">
+                                <!-- Category Filter -->
+                                <select id="categoryFilter" class="font-semibold text-gray-700 text-base dark:text-white">
+                                    <option value="all">All Categories</option>
+                                    <option value="Romance">Romance</option>
+                                    <option value="Fantasy">Fantasy</option>
+                                    <option value="Horror">Horror</option>
+                                </select>
 
+                                <!-- Status Filter -->
+                                <select id="statusFilter" class="font-semibold text-gray-700 text-base dark:text-white">
+                                    <option value="all">All Books</option>
+                                    <option value="available">Available Books</option>
+                                    <option value="unavailable">Unavailable Books</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
 
                 </div>
