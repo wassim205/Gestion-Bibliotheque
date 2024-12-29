@@ -48,7 +48,7 @@ class Admin extends User{
         $database = new Database();
         $db = $database->connect();
     
-        $query = "SELECT COUNT(*) as borrowedBooks FROM borrowings";
+        $query = "SELECT COUNT(DISTINCT borrowings.book_id) as borrowedBooks FROM borrowings";
         $stmt = $db->prepare($query);
         $stmt->execute();
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -109,14 +109,13 @@ class Admin extends User{
         $database = new Database();
         $db = $database->connect();
     
-        $query = "
-        SELECT books.title, books.author, COUNT(borrowings.book_id) as borrow_count 
+        $query = "SELECT books.title, books.author, COUNT(borrowings.book_id) as borrow_count 
         FROM borrowings 
         JOIN books ON borrowings.book_id = books.id 
         GROUP BY borrowings.book_id 
         ORDER BY borrow_count DESC 
-        LIMIT 3
-    ";
+        LIMIT 3"
+        ;
     
     $stmt = $db->prepare($query);
     
@@ -124,9 +123,25 @@ class Admin extends User{
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
         return isset($results) ? $results : null;
     } else {
-        // Handle error
         return null;
     }
+}
+    public function ActiveUsers(){
+        $database = new Database();
+        $db = $database->connect();
+    
+        $query = "SELECT users.name, users.email, COUNT(borrowings.user_id) as borrowTimes
+        FROM borrowings JOIN users ON borrowings.user_id = users.id 
+        GROUP BY borrowings.user_id LIMIT 3" ;
+    
+        $stmt = $db->prepare($query);
+    
+        if ($stmt->execute()) {
+            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            return isset($results) ? $results : null;
+        } else {
+            return null;
+        }
 }
 
 }

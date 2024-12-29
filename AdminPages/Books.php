@@ -85,8 +85,8 @@ $categories = $admin->displayCategories();
                                 <td class="py-2 px-4"><?php echo $book['name']; ?></td>
                                 <td class="py-2 px-4"><?php echo $book['summary']; ?></td>
                                 <td class="py-2 px-4"><?php echo $book['status']; ?></td>
-                                <td class="py-2 px-4">
-                                    <a href="#" class="text-blue-600 hover:underline mx-3 hover:text-blue-700 hover:underline">Modifier</a>
+                                <td class="py-2 px-4 flex items-center w-full">
+                                    <a href="#" class="text-blue-600 hover:underline mx-3">Modifier</a>
                                     <a href="#" class="text-red-600 hover:underline">Delete</a>
                                 </td>
                             </tr>

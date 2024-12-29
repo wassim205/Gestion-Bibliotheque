@@ -82,7 +82,6 @@ $topBooks = $admin->topBorrowedBooks();
                                 <th class="py-2 px-4">Title</th>
                                 <th class="py-2 px-4">Author</th>
                                 <th class="py-2 px-4">The number of borrows</th>
-                                <th class="py-2 px-4">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -90,7 +89,7 @@ $topBooks = $admin->topBorrowedBooks();
                             <tr class="border-b hover:bg-gray-100">
                                 <td class="py-2 px-4"><?php echo $topBook['title']; ?></td>
                                 <td class="py-2 px-4"><?php echo $topBook['author']; ?></td>
-                                <td class="py-2 px-4"><?php echo $topBook['title']; ?></td>
+                                <td class="py-2 px-4"><?php echo $topBook['borrow_count']; ?></td>
                             </tr>
                             <?php  endforeach; ?>
                         </tbody>

@@ -7,7 +7,7 @@ $db = $database->connect();
 
 $admin = new Admin($db);
 $users = $admin->displayUsers();
-
+$topUsers = $admin->ActiveUsers();
 ?>
 
 
@@ -53,16 +53,17 @@ $users = $admin->displayUsers();
                             <tr class="border-b">
                                 <th class="py-2 px-4">User Name</th>
                                 <th class="py-2 px-4">Email</th>
-                                <th class="py-2 px-4">The number of books borrowed</th>
+                                <th class="py-2 px-4">The number of times borrowed a book</th>
                             </tr>
                         </thead>
                         <tbody>
+                            <?php foreach($topUsers as $topUser) : ?>
                                 <tr class="border-b hover:bg-gray-100">
-                                    <td class="py-2 px-4">wassim</td>
-                                    <td class="py-2 px-4">wassim@gmail.com</td>
-                                    
-                                    <td class="py-2 px-4 text-blue-400">12</td>
+                                    <td class="py-2 px-4"><?php echo $topUser['name'] ?></td>
+                                    <td class="py-2 px-4"><?php echo $topUser['email'] ?></td>
+                                    <td class="py-2 px-4 text-blue-400"><?php echo $topUser['borrowTimes'] ?></td>
                                 </tr>
+                        <?php endforeach ?>
                         </tbody>
                     </table>
                     </div>
