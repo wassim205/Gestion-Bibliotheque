@@ -50,7 +50,7 @@ $categories = $admin->displayCategories();
                 <h2 class="text-lg font-bold text-gray-800">Dashboard Overview</h2>
                 <div class="flex items-center space-x-4">
                     <input type="text" placeholder="Search..." class="py-1 px-3 border rounded-lg text-sm">
-                    <a class="bg-blue-600 text-white py-1 px-3 rounded-lg" href="logout.php">Log Out</a>
+                    <a class="bg-blue-600 text-white py-1 px-3 rounded-lg" href="../logout.php">Log Out</a>
                 </div>
             </header>
 
@@ -72,6 +72,7 @@ $categories = $admin->displayCategories();
                                 <th class="py-2 px-4">Author</th>
                                 <th class="py-2 px-4">Categorie</th>
                                 <th class="py-2 px-4">The number of times borrowed</th>
+                                <th class="py-2 px-4">Status</th>
                                 <th class="py-2 px-4">Actions</th>
                             </tr>
                         </thead>
@@ -84,8 +85,8 @@ $categories = $admin->displayCategories();
                                 <td class="py-2 px-4"><?php echo $book['name']; ?></td>
                                 <td class="py-2 px-4"><?php echo $book['summary']; ?></td>
                                 <td class="py-2 px-4"><?php echo $book['status']; ?></td>
-                                <td class="py-2 px-4">
-                                    <a href="#" class="text-blue-600 hover:underline mx-3 hover:text-blue-700 hover:underline">Modifier</a>
+                                <td class="py-2 px-4 flex items-center w-full">
+                                    <a href="#" class="text-blue-600 hover:underline mx-3">Modifier</a>
                                     <a href="#" class="text-red-600 hover:underline">Delete</a>
                                 </td>
                             </tr>
