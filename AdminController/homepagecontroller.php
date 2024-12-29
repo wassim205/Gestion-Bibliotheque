@@ -57,6 +57,17 @@ class Admin extends User
         return isset($result['borrowedBooks']) ? $result['borrowedBooks'] : 0;
     }
 
+    public function totalBorrowedBooks()
+    {
+
+        $query = "SELECT COUNT(borrowings.book_id) as totalTimeBorrowedBooks FROM borrowings";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute();
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return isset($result['totalTimeBorrowedBooks']) ? $result['totalTimeBorrowedBooks'] : 0;
+    }
+
     public function displayUsers()
     {
         $query = "SELECT * FROM users";
@@ -69,7 +80,9 @@ class Admin extends User
 
     public function displayBooks()
     {
-        $query = "SELECT books.title, books.author, categories.name, books.cover_image, books.summary, books.status FROM books join categories on books.category_id = categories.id";
+        $query = "SELECT books.id, books.title, books.author, categories.name, books.cover_image, books.summary, books.status 
+              FROM books 
+              JOIN categories ON books.category_id = categories.id";
         $stmt = $this->db->prepare($query);
         $stmt->execute();
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -136,5 +149,19 @@ class Admin extends User
         $stmt = $this->db->prepare($query);
 
         return $stmt->execute([$role, $id]);
+    }
+
+    public function updateBook($id, $title, $author, $cover_image, $summary, $category_id)
+    {
+        $query = "UPDATE books SET title = ?, author = ?, cover_image = ?, summary = ?, category_id = ? WHERE id = ?";
+        $stmt = $this->db->prepare($query);
+        return $stmt->execute([$title, $author, $cover_image, $summary, $category_id, $id]);
+    }
+
+    public function deleteBook($id)
+    {
+        $query = "DELETE FROM books WHERE id = ?";
+        $stmt = $this->db->prepare($query);
+        return $stmt->execute([$id]);
     }
 }
