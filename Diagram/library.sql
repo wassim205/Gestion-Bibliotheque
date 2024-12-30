@@ -154,3 +154,16 @@ INSERT INTO books (title, author, category_id, cover_image, summary, status) VAL
 ('The Grapes of Wrath', 'John Steinbeck', 19, 'https://covers.openlibrary.org/b/id/8225650-L.jpg', 'A novel about the Great Depression and societal struggles.', 'available'),
 ('Slaughterhouse-Five', 'Kurt Vonnegut', 20, 'https://covers.openlibrary.org/b/id/8225651-L.jpg', 'A satirical novel about war and time travel.', 'available'),
 ('The Book Thief', 'Markus Zusak', 11, 'https://covers.openlibrary.org/b/id/8225652-L.jpg', 'A story narrated by Death, about a girl in Nazi Germany.', 'borrowed');
+
+
+
+
+
+insert into borrowings(user_id, book_id, borrow_date, due_date) 
+VALUES(8, 2, '2024-12-27', '2025-01-01'),
+(8, 6, '2024-12-27', '2025-01-01'),
+(8, 12, '2024-12-27', '2025-01-01'),
+(8, 16, '2024-12-27', '2025-01-01'),
+(8, 22, '2024-12-27', '2025-01-01'),
+(8, 26, '2024-12-27', '2025-01-01'),
+(8, 30, '2024-27-12', '2025-01-01');

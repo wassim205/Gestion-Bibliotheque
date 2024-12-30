@@ -1,13 +1,18 @@
 <?php
-require '../Class/DatabaseClass.php';
-require '../AdminController/homepagecontroller.php';
+
+
+require_once '../Class/DatabaseClass.php';
+require_once '../AdminController/homepagecontroller.php';
+require_once '../AdminController/Gestion_users.php';
 
 $database = new Database();
 $db = $database->connect();
 
 $admin = new Admin($db);
 $users = $admin->displayUsers();
+$topUsers = $admin->ActiveUsers();
 
+$currentUser_Id = $_SESSION['user_id'] ?? null;
 ?>
 
 
@@ -29,8 +34,8 @@ $users = $admin->displayUsers();
             </div>
             <nav>
                 <ul class="space-y-4 p-4">
-                    <li><a href="dashboard.php" class="flex items-center gap-2 text-lg hover:bg-blue-500 p-2 rounded"><span>🏠</span> Home</a></li>
-                    <li><a href="users.php" class="flex items-center font-bold gap-2 text-lg hover:bg-blue-500 p-2 rounded"><span>📋</span> Users</a></li>
+                    <li><a href="Dashboard.php" class="flex items-center gap-2 text-lg hover:bg-blue-500 p-2 rounded"><span>🏠</span> Home</a></li>
+                    <li><a href="UsersManaging.php" class="flex items-center font-bold gap-2 text-lg hover:bg-blue-500 p-2 rounded"><span>📋</span> Users</a></li>
                     <li><a href="Books.php" class="flex items-center gap-2 text-lg hover:bg-blue-500 p-2 rounded"><span>📁</span> Books</a></li>
                 </ul>
             </nav>
@@ -41,31 +46,32 @@ $users = $admin->displayUsers();
                 <h2 class="text-lg font-bold text-gray-800">Users Overview</h2>
                 <div class="flex items-center space-x-4">
                     <input type="text" placeholder="Search users..." class="py-1 px-3 border rounded-lg text-sm">
-                    <a class="bg-blue-600 text-white py-1 px-3 rounded-lg" href="logout.php">Log Out</a>
+                    <a class="bg-blue-600 text-white py-1 px-3 rounded-lg" href="../logout.php">Log Out</a>
                 </div>
             </header>
 
             <main class="p-6 flex-1 overflow-y-auto">
                 <div class="bg-white rounded-lg shadow-md mb-4">
-                <h3 class="text-lg font-bold p-4">Top active Users</h3>
+                    <h3 class="text-lg font-bold p-4">Top active Users</h3>
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr class="border-b">
                                 <th class="py-2 px-4">User Name</th>
                                 <th class="py-2 px-4">Email</th>
-                                <th class="py-2 px-4">The number of books borrowed</th>
+                                <th class="py-2 px-4">The number of times borrowed a book</th>
                             </tr>
                         </thead>
                         <tbody>
+                            <?php foreach ($topUsers as $topUser) : ?>
                                 <tr class="border-b hover:bg-gray-100">
-                                    <td class="py-2 px-4">wassim</td>
-                                    <td class="py-2 px-4">wassim@gmail.com</td>
-                                    
-                                    <td class="py-2 px-4 text-blue-400">12</td>
+                                    <td class="py-2 px-4"><?php echo $topUser['name'] ?></td>
+                                    <td class="py-2 px-4"><?php echo $topUser['email'] ?></td>
+                                    <td class="py-2 px-4 text-blue-400"><?php echo $topUser['borrowTimes'] ?></td>
                                 </tr>
+                            <?php endforeach ?>
                         </tbody>
                     </table>
-                    </div>
+                </div>
                 <div class="bg-white rounded-lg shadow-md">
                     <h3 class="text-lg font-bold p-4">All Users</h3>
                     <table class="w-full text-left border-collapse">
@@ -78,22 +84,32 @@ $users = $admin->displayUsers();
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach($users as $user) : ?>
+                            <?php foreach ($users as $user) : ?>
                                 <tr class="border-b hover:bg-gray-100">
-                                    <td class="py-2 px-4"><?php echo $user['name']; ?></td>
-                                    <td class="py-2 px-4"><?php echo $user['email']; ?></td>
-                                     <td class="py-2 px-4"><?php echo $user['role']; ?></td>
-                                     <td class="py-2 px-4"><button class="text-blue-400 hover:underline">Change Role</button></td>
+                                    <td class="py-2 px-4"><?php echo htmlspecialchars($user['name'] ?? ''); ?></td>
+                                    <td class="py-2 px-4"><?php echo htmlspecialchars($user['email'] ?? ''); ?></td>
+                                    <td class="py-2 px-4"><?php echo htmlspecialchars($user['role'] ?? ''); ?></td>
+                                    <td class="py-2 px-4">
+                                        <form method="POST" action="../AdminController/Gestion_users.php">
+                                            <input type="hidden" name="user_id" value="<?php echo htmlspecialchars($user['id'] ?? ''); ?>">
+                                            <select name="role" class="border rounded">
+                                                <option value="user" <?php echo ($user['role'] ?? '') == 'user' ? 'selected' : ''; ?>>User </option>
+                                                <option value="admin" <?php echo ($user['role'] ?? '') == 'admin' ? 'selected' : ''; ?>>Admin</option>
+                                            </select>
+                                            <button type="submit" name="changeRole" class="bg-blue-600 text-white py-1 px-3 rounded"
+                                                <?php if ($user['id'] == $currentUser_Id) echo 'disabled'; ?>>Change Role</button>
+                                        </form>
+                                    </td>
                                 </tr>
-                                <?php endforeach ?>
+                            <?php endforeach; ?>
                         </tbody>
                     </table>
-                    </div>
+                </div>
             </main>
         </div>
     </div>
 
-    
+
 </body>
 
 </html>

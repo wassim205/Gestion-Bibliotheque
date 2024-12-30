@@ -1,6 +1,6 @@
 <?php
-require '../Class/DatabaseClass.php';
-require '../AdminController/homepagecontroller.php';
+require_once '../Class/DatabaseClass.php';
+require_once '../AdminController/homepagecontroller.php';
 
 $database = new Database();
 $db = $database->connect();
@@ -10,6 +10,8 @@ $userCount = $admin->getUsersCount();
 $booksCount = $admin->getBooksNumber();
 $availableBooks = $admin->getAvailableBooks();
 $borrowedBooks = $admin->borrowedBooks();
+$topBooks = $admin->topBorrowedBooks();
+$totalTimeBorrowedBooks = $admin->totalBorrowedBooks();
 ?>
 
 
@@ -49,7 +51,7 @@ $borrowedBooks = $admin->borrowedBooks();
                 <h2 class="text-lg font-bold text-gray-800">Dashboard Overview</h2>
                 <div class="flex items-center space-x-4">
                     <input type="text" placeholder="Search..." class="py-1 px-3 border rounded-lg text-sm">
-                    <a class="bg-blue-600 text-white py-1 px-3 rounded-lg" href="logout.php">Log Out</a>
+                    <a class="bg-blue-600 text-white py-1 px-3 rounded-lg" href="../logout.php">Log Out</a>
                 </div>
             </header>
 
@@ -65,11 +67,15 @@ $borrowedBooks = $admin->borrowedBooks();
                     </div>
                     <div class="bg-white p-6 rounded-lg shadow-md">
                         <h3 class="text-sm text-gray-500">The available books</h3>
-                        <p class="text-2xl font-bold"><?php  echo $availableBooks?></p>
+                        <p class="text-2xl font-bold"><?php echo $availableBooks ?></p>
                     </div>
                     <div class="bg-white p-6 rounded-lg shadow-md">
                         <h3 class="text-sm text-gray-500">Borrowed books</h3>
-                        <p class="text-2xl font-bold"><?php  echo $borrowedBooks?></p>
+                        <p class="text-2xl font-bold"><?php echo $borrowedBooks ?></p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="text-sm text-gray-500">Total N° of times books has been Borrowed</h3>
+                        <p class="text-2xl font-bold"><?php echo $totalTimeBorrowedBooks ?></p>
                     </div>
                 </div>
 
@@ -81,28 +87,16 @@ $borrowedBooks = $admin->borrowedBooks();
                                 <th class="py-2 px-4">Title</th>
                                 <th class="py-2 px-4">Author</th>
                                 <th class="py-2 px-4">The number of borrows</th>
-                                <th class="py-2 px-4">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr class="border-b hover:bg-gray-100">
-                                <td class="py-2 px-4">E-commerce Website</td>
-                                <td class="py-2 px-4">Jane Doe</td>
-                                <td class="py-2 px-4"><span class="text-green-600">Active</span></td>
-                                <td class="py-2 px-4"><a href="#" class="text-blue-600 hover:underline">View</a></td>
-                            </tr>
-                            <tr class="border-b hover:bg-gray-100">
-                                <td class="py-2 px-4">Portfolio Website</td>
-                                <td class="py-2 px-4">John Smith</td>
-                                <td class="py-2 px-4"><span class="text-red-600">Pending</span></td>
-                                <td class="py-2 px-4"><a href="#" class="text-blue-600 hover:underline">View</a></td>
-                            </tr>
-                            <tr class="hover:bg-gray-100">
-                                <td class="py-2 px-4">Blog Website</td>
-                                <td class="py-2 px-4">Alice Johnson</td>
-                                <td class="py-2 px-4"><span class="text-yellow-600">In Progress</span></td>
-                                <td class="py-2 px-4"><a href="#" class="text-blue-600 hover:underline">View</a></td>
-                            </tr>
+                            <?php foreach ($topBooks as $topBook) : ?>
+                                <tr class="border-b hover:bg-gray-100">
+                                    <td class="py-2 px-4"><?php echo $topBook['title']; ?></td>
+                                    <td class="py-2 px-4"><?php echo $topBook['author']; ?></td>
+                                    <td class="py-2 px-4"><?php echo $topBook['borrow_count']; ?></td>
+                                </tr>
+                            <?php endforeach; ?>
                         </tbody>
                     </table>
                 </div>
@@ -111,5 +105,6 @@ $borrowedBooks = $admin->borrowedBooks();
     </div>
 
 
-  </body>
+</body>
+
 </html>
