@@ -1,8 +1,8 @@
 
 <?php
 
-require_once '../Class/BooksClass.php';
-require_once '../Class/DatabaseClass.php';
+require_once 'Class/BooksClass.php';
+require_once 'Class/DatabaseClass.php';
 
 $database = new Database();
 $db = $database->connect();
@@ -35,7 +35,7 @@ $books = $bookController->getAllBooks();
 
             <div class=" font-bold text-lg flex items-center gap-x-3">
                 <img src="image.png" class="w-8" alt="">
-        -->
+
                 <div class="tracking-wide dark:text-white">Book<span class="text-red-600">Haven</span></div>
             </div>
 
@@ -115,11 +115,14 @@ $books = $bookController->getAllBooks();
                     <?php foreach ($books as $book): ?>
                         <div class="relative rounded-xl overflow-hidden ">
                         <img src="<?php echo htmlspecialchars($book->getCoverImage()); ?>" class="object-cover w-80 h-81 -z-10" alt="">
-                        <div class="absolute top-0 h-full w-full bg-gradient-to-t from-black/50 p-3 flex flex-col justify-between">
+                        <div class="absolute top-0 text-right h-full w-full bg-gradient-to-t from-black/50 p-3 flex flex-col justify-between">
                             <?php if($book->getBookStatus() == "available"): ?>
-                                <a href="#" class="p-2.5 bg-gray-800/80 rounded-lg text-white self-end hover:bg-red-600/80">
-                                    <span class="text-white text-xs">Borrow</span>
-                                </a>
+                                <form>
+                                    <input type="hidden" name="" id="book_id" value="<?=htmlspecialchars($book->getId());?>">
+                                    <a href="#" class="p-2.5 bg-gray-800/80 rounded-lg text-white self-end hover:bg-red-600/80">
+                                        <span class="text-white text-xs">Borrow</span>
+                                    </a>
+                                </form>
                             <?php else: ?>
                                 <a href="#" class="p-2.5 bg-gray-800/80 rounded-lg text-white self-end hover:bg-red-600/80">
                                 <span class="text-white text-xs">Reserve</span>

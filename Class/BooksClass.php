@@ -10,6 +10,7 @@ class Book {
     private $summary;
     private $status ;
     private $conn;
+    private $table = "books";
 
     function __construct($db, $id = null, $title = null, $author = null, $category = null, $coverImage = null, $summary = null , $status = null) {
         $this->conn = $db;
@@ -89,7 +90,7 @@ class Book {
     function getAllBooks() {
         $books = [];
         $query = "SELECT books.id, books.title, books.status, books.author, categories.name AS category, books.cover_image, books.summary 
-                    FROM books INNER JOIN categories ON books.category_id = categories.id";
+                    FROM books INNER JOIN categories ON books.category_id = categories.id ORDER BY books.status ASC";
 
         try {
 
@@ -113,6 +114,23 @@ class Book {
             echo 'Error fetching books: ' . $e->getMessage();
         }
 
+        return $books;
+    }
+
+    public function searchBooks($searchTerm)
+    {
+        $query = "SELECT * FROM " . $this->table . " WHERE title LIKE :searchTerm";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindValue(':searchTerm', '%' . $searchTerm . '%', PDO::PARAM_STR);
+        $stmt->execute();
+
+        $books = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $book = new self($this->conn);
+            $book->setId($row['id']);
+            $book->setTitle($row['title']);
+            $books[] = $book;
+        }
         return $books;
     }
 }
