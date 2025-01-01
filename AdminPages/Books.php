@@ -2,6 +2,8 @@
 require_once '../Class/DatabaseClass.php';
 require_once '../AdminController/homepagecontroller.php';
 require_once '../AdminController/Gestion_book.php';
+require_once '../Class/CategoryClass.php';
+
 
 $database = new Database();
 $db = $database->connect();
@@ -10,6 +12,7 @@ $admin = new Admin($db);
 $books = $admin->displayBooks();
 $categories = $admin->displayCategories();
 
+$inst_Category = new Category($db);
 ?>
 
 
@@ -22,6 +25,8 @@ $categories = $admin->displayCategories();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 
@@ -68,24 +73,28 @@ $categories = $admin->displayCategories();
                     </div>
                 <?php endif; ?>
                 <div class="flex justify-end">
-                    <div class=" py-1 px-3 rounded-lg">
-                        <select name="" id="">
-                            <option value="">Available</option>
+                    <div class="flex justify-end">
+                        <!-- Category Filter -->
+                        <select id="categoryFilter" class="font-semibold text-gray-700 text-base">
+                            <option value="all">All Categories</option>
+                            <?php
+                            $categories = $inst_Category->getAllCategories();
+                            foreach ($categories as $category) : ?>
+                                <option value="<?= htmlspecialchars($category->getName()) ?>"> <?= htmlspecialchars($category->getName()) ?></option>;
+
+                            <?php endforeach; ?>
                         </select>
-                    </div>
-                    <div class=" py-1 px-3 rounded-lg">
-                        <select name="" id="">
-                            <option value="">Available</option>
-                            <option value="">Reserved</option>
-                            <option value="">Borrowed</option>
+                        <!-- Status Filter -->
+                        <select id="statusFilter" class="font-semibold text-gray-700 text-base">
+                            <option value="all">All Books</option>
+                            <option value="available">Available Books</option>
+                            <option value="unavailable">Unavailable Books</option>
                         </select>
                     </div>
 
                     <form action="" method="POST">
                         <button class="bg-blue-600 text-white py-1 px-3 rounded-lg" name="addbook">Add a book</button>
                     </form>
-
-
                 </div>
 
                 <div class="mt-6 bg-white rounded-lg shadow-md">
@@ -223,12 +232,40 @@ $categories = $admin->displayCategories();
         </div>
     <?php endif; ?>
 
+    <div id="booksGrid" class="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-x-5 gap-y-5">
+
+    </div>
+
 
 
     <script>
         function closeForm() {
             document.getElementById('formOverlay').style.display = 'none';
         }
+
+        function fetchBooks() {
+            const category = $('#categoryFilter').val();
+            const filtrage = $('#statusFilter').val();
+
+            $.ajax({
+                url: '../filter_books.php',
+                method: 'POST',
+                data: {
+                    category: category,
+                    filtrage: filtrage,
+                },
+                success: function(response) {
+                    $('#booksGrid').html(response);
+                },
+                error: function() {
+                    $('#booksGrid').html('<p class="text-center text-gray-500">Failed to fetch books.</p>');
+                }
+            });
+        }
+
+
+        $('#categoryFilter, #statusFilter').on('change', fetchBooks);
+        $(document).ready(fetchBooks);
     </script>
 
 
