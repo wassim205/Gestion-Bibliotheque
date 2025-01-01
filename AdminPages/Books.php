@@ -2,7 +2,6 @@
 require_once '../Class/DatabaseClass.php';
 require_once '../AdminController/homepagecontroller.php';
 require_once '../AdminController/Gestion_book.php';
-require_once '../Class/CategoryClass.php';
 
 
 $database = new Database();
@@ -12,7 +11,6 @@ $admin = new Admin($db);
 $books = $admin->displayBooks();
 $categories = $admin->displayCategories();
 
-$inst_Category = new Category($db);
 ?>
 
 
@@ -72,15 +70,16 @@ $inst_Category = new Category($db);
                         <?php echo htmlspecialchars($_GET['error']); ?>
                     </div>
                 <?php endif; ?>
+
+
                 <div class="flex justify-end">
                     <div class="flex justify-end">
                         <!-- Category Filter -->
                         <select id="categoryFilter" class="font-semibold text-gray-700 text-base">
                             <option value="all">All Categories</option>
                             <?php
-                            $categories = $inst_Category->getAllCategories();
                             foreach ($categories as $category) : ?>
-                                <option value="<?= htmlspecialchars($category->getName()) ?>"> <?= htmlspecialchars($category->getName()) ?></option>;
+                                <option value="<?= htmlspecialchars($category['name']) ?>"> <?= htmlspecialchars($category['name']) ?></option>;
 
                             <?php endforeach; ?>
                         </select>
@@ -88,7 +87,8 @@ $inst_Category = new Category($db);
                         <select id="statusFilter" class="font-semibold text-gray-700 text-base">
                             <option value="all">All Books</option>
                             <option value="available">Available Books</option>
-                            <option value="unavailable">Unavailable Books</option>
+                            <option value="reserved">Reserved Books</option>
+                            <option value="borrowed">Borrowed Books</option>
                         </select>
                     </div>
 
@@ -111,30 +111,11 @@ $inst_Category = new Category($db);
                                 <th class="py-2 px-4">Actions</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <?php foreach ($books as $book) : ?>
-                                <tr class="border-b hover:bg-gray-100">
-                                    <td class="py-2 px-4"><img src="<?php echo $book['cover_image']; ?>" alt="" width="50"></td>
-                                    <td class="py-2 px-4 cursor-pointer hover:text-blue-700 hover:font-bold hover:underline"><?php echo $book['title']; ?></td>
-                                    <td class="py-2 px-4"><?php echo $book['author']; ?></td>
-                                    <td class="py-2 px-4"><?php echo $book['name']; ?></td>
-                                    <td class="py-2 px-4"><?php echo $book['summary']; ?></td>
-                                    <td class="py-2 px-4"><?php echo $book['status']; ?></td>
-                                    <td class="py-2 px-4 flex items-center w-full">
 
-                                        <form method="POST" action="" class="mr-2">
-                                            <input type="hidden" name="edit_id" value="<?php echo $book['id']; ?>">
-                                            <button type="submit" name="modifier" class="text-blue-600 hover:underline">Edit</button>
-                                        </form>
+                        <tbody id="booksGrid">
 
-                                        <form method="POST" action="../AdminController/Gestion_book.php" class="mr-2" onsubmit="return confirm('Are you sure you want to delete this book?');">
-                                            <input type="hidden" name="id" value="<?php echo $book['id']; ?>">
-                                            <button type="submit" name="deleteBook" class="text-red-600 hover:underline">Delete</button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            <?php endforeach ?>
                         </tbody>
+
                     </table>
                 </div>
             </main>
@@ -232,9 +213,6 @@ $inst_Category = new Category($db);
         </div>
     <?php endif; ?>
 
-    <div id="booksGrid" class="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-x-5 gap-y-5">
-
-    </div>
 
 
 
@@ -248,24 +226,50 @@ $inst_Category = new Category($db);
             const filtrage = $('#statusFilter').val();
 
             $.ajax({
-                url: '../filter_books.php',
+                url: '../AdminController/filtering_books.php',
                 method: 'POST',
                 data: {
                     category: category,
                     filtrage: filtrage,
                 },
                 success: function(response) {
-                    $('#booksGrid').html(response);
+                    let booksHtml = '';
+                    response.forEach(book => {
+                        booksHtml += `
+                    <tr class="border-b hover:bg-gray-100">
+                        <td class="py-2 px-4"><img src="${book.cover_image}" alt="" width="50"></td>
+                        <td class="py-2 px-4 cursor-pointer hover:text-blue-700 hover:font-bold hover:underline">${book.title}</td>
+                        <td class="py-2 px-4">${book.author}</td>
+                        <td class="py-2 px-4">${book.category}</td>
+                        <td class="py-2 px-4">${book.borrowed_times || 0}</td>
+                        <td class="py-2 px-4">${book.status}</td>
+                        <td class="py-2 px-4 flex items-center w-full">
+                            <form method="POST" action="" class="mr-2">
+                                <input type="hidden" name="edit_id" value="${book.id}">
+                                <button type="submit" name="modifier" class="text-blue-600 hover:underline">Edit</button>
+                            </form>
+                            <form method="POST" action="../AdminController/Gestion_book.php" class="mr-2" onsubmit="return confirm('Are you sure you want to delete this book?');">
+                                <input type="hidden" name="id" value="${book.id}">
+                                <button type="submit" name="deleteBook" class="text-red-600 hover:underline">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                `;
+                    });
+                    $('#booksGrid').html(booksHtml);
                 },
-                error: function() {
-                    $('#booksGrid').html('<p class="text-center text-gray-500">Failed to fetch books.</p>');
+                error: function(xhr, status, error) {
+                    console.error('Error:', error);
+                    $('#booksGrid').html('<tr><td colspan="7" class="text-center text-red-500 py-4">Failed to fetch books.</td></tr>');
                 }
             });
         }
 
 
-        $('#categoryFilter, #statusFilter').on('change', fetchBooks);
-        $(document).ready(fetchBooks);
+        $(document).ready(function() {
+            fetchBooks();
+            $('#categoryFilter, #statusFilter').on('change', fetchBooks);
+        });
     </script>
 
 
