@@ -167,3 +167,14 @@ VALUES(8, 2, '2024-12-27', '2025-01-01'),
 (8, 22, '2024-12-27', '2025-01-01'),
 (8, 26, '2024-12-27', '2025-01-01'),
 (8, 30, '2024-27-12', '2025-01-01');
+
+
+use library ;
+CREATE TABLE Reservations(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    book_id int NOT NULL,
+    user_id int NOT NULL,
+    reservation_date DATE DEFAULT CURRENT_DATE,
+    FOREIGN KEY (book_id) REFERENCES books(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);

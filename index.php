@@ -1,5 +1,7 @@
 
 <?php
+session_start();
+unset($_SESSION["user_id"]);
 
 require_once 'Class/BooksClass.php';
 require_once 'Class/DatabaseClass.php';
@@ -10,6 +12,7 @@ $db = $database->connect();
 $inst_Book = new Book($db);
 $books = $inst_Book->getAllBooks();
 $inst_Category = new Category($db);
+
 ?>
 
 <!DOCTYPE html>
@@ -31,21 +34,35 @@ $inst_Category = new Category($db);
 </head>
 
 <body class="font-montserrat text-sm bg-white" >
-    <div class="flex min-h-screen  2xl:max-w-screen-2xl 2xl:mx-auto 2xl:border-x-2 2xl:border-gray-200 ">
+
+    <div class="flex min-h-screen mt-0  2xl:max-w-screen-2xl 2xl:mx-auto 2xl:border-x-2 2xl:border-gray-200 ">
 
 
-        <main class=" flex-1 py-10  px-5 sm:px-10 ">
-            <div class="relative justify-end items-center content-center flex">
+        <main class="flex-1 py-10  pb-5 sm:px-10 ">
+            <div class="relative items-center content-center flex">
 
-                <div class="relative items-center content-center flex ml-2">
-                    <span class="text-gray-400 absolute left-4 cursor-pointer">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                <div class="relative items-center content-center flex gap-5 ml-2 font-medium">
+                    <p>You must be logged in to borrow a book. Please <a href="login.php" class="text-blue-400 underline hover:text-red-500">log in</a> or <a href="sign-up.php" class="text-blue-400 underline hover:text-red-500">create an account</a>.</p>
+                    <!-- <button class="flex items-center space-x-2 group">
+                        <svg class="h-5 w-5 group-hover:fill-green-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                            <g>
+                                <path d="M16 13v-2H7V8l-5 4 5 4v-3h9Z"></path>
+                                <path d="M19 3H9c-1.1 0-2 .9-2 2v4h2V5h10v14H9v-4H7v4c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2Z"></path>
+                            </g>
                         </svg>
-                    </span>
+                        <span>Login</span>
+                    </button>
 
-                    <input type="text" id="search-books" class="text-xs ring-1 bg-transparent ring-gray-200 focus:ring-green-300 pl-10 pr-5 text-gray-600 py-3 rounded-full w-full outline-none focus:ring-1"  placeholder="Search ..." oninput="searchBooks(this.value)">
-
+                    <button class="flex items-center space-x-2 group">
+                        <svg class="h-5 w-5 group-hover:fill-blue-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                            <g>
+                                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4Z"></path>
+                                <path d="M12 14c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4Z"></path>
+                                <path d="M20 12h-3v-2h3V7h2v3h3v2h-3v3h-2Z"></path>
+                            </g>
+                        </svg>
+                        <span>Create Account</span>
+                    </button> -->
                 </div>
             </div>
 
@@ -58,7 +75,7 @@ $inst_Category = new Category($db);
                     <div class="flex items-center justify-end">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center space-x-4">
-                                <!-- Category Filter -->
+
                                 <select id="categoryFilter" class="font-semibold text-gray-700 text-base">
                                 <option value="all">All Categories</option>
                                 <?php
@@ -68,7 +85,7 @@ $inst_Category = new Category($db);
                                     
                                 <?php endforeach ; ?>
                                 </select>
-                                <!-- Status Filter -->
+
                                 <select id="statusFilter" class="font-semibold text-gray-700 text-base">
                                     <option value="all">All Books</option>
                                     <option value="available">Available Books</option>
@@ -77,7 +94,7 @@ $inst_Category = new Category($db);
                             </div>
                         </div>
                     </div>
-                <!-- Books Grid -->
+
                 <div id="booksGrid" class="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-x-5 gap-y-5">
 
                 </div>
