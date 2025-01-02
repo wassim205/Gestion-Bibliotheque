@@ -1,4 +1,11 @@
 <?php
+
+session_start();
+if($_SESSION['role'] != 'admin'){
+    header('Location: ../login.php');
+    exit;
+}
+
 require_once '../Class/DatabaseClass.php';
 require_once '../AdminController/homepagecontroller.php';
 require_once '../AdminController/Gestion_book.php';
