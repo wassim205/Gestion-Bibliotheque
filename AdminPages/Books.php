@@ -1,7 +1,15 @@
 <?php
+
+session_start();
+if($_SESSION['role'] != 'admin'){
+    header('Location: ../login.php');
+    exit;
+}
+
 require_once '../Class/DatabaseClass.php';
 require_once '../AdminController/homepagecontroller.php';
 require_once '../AdminController/Gestion_book.php';
+
 
 $database = new Database();
 $db = $database->connect();
@@ -22,6 +30,8 @@ $categories = $admin->displayCategories();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 
@@ -67,7 +77,28 @@ $categories = $admin->displayCategories();
                         <?php echo htmlspecialchars($_GET['error']); ?>
                     </div>
                 <?php endif; ?>
+
+
                 <div class="flex justify-end">
+                    <div class="flex justify-end">
+                        <!-- Category Filter -->
+                        <select id="categoryFilter" class="font-semibold text-gray-700 text-base">
+                            <option value="all">All Categories</option>
+                            <?php
+                            foreach ($categories as $category) : ?>
+                                <option value="<?= htmlspecialchars($category['name']) ?>"> <?= htmlspecialchars($category['name']) ?></option>;
+
+                            <?php endforeach; ?>
+                        </select>
+                        <!-- Status Filter -->
+                        <select id="statusFilter" class="font-semibold text-gray-700 text-base">
+                            <option value="all">All Books</option>
+                            <option value="available">Available Books</option>
+                            <option value="reserved">Reserved Books</option>
+                            <option value="borrowed">Borrowed Books</option>
+                        </select>
+                    </div>
+
                     <form action="" method="POST">
                         <button class="bg-blue-600 text-white py-1 px-3 rounded-lg" name="addbook">Add a book</button>
                     </form>
@@ -87,30 +118,11 @@ $categories = $admin->displayCategories();
                                 <th class="py-2 px-4">Actions</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <?php foreach ($books as $book) : ?>
-                                <tr class="border-b hover:bg-gray-100">
-                                    <td class="py-2 px-4"><img src="<?php echo $book['cover_image']; ?>" alt="" width="50"></td>
-                                    <td class="py-2 px-4 cursor-pointer hover:text-blue-700 hover:font-bold hover:underline"><?php echo $book['title']; ?></td>
-                                    <td class="py-2 px-4"><?php echo $book['author']; ?></td>
-                                    <td class="py-2 px-4"><?php echo $book['name']; ?></td>
-                                    <td class="py-2 px-4"><?php echo $book['summary']; ?></td>
-                                    <td class="py-2 px-4"><?php echo $book['status']; ?></td>
-                                    <td class="py-2 px-4 flex items-center w-full">
 
-                                        <form method="POST" action="" class="mr-2">
-                                            <input type="hidden" name="edit_id" value="<?php echo $book['id']; ?>">
-                                            <button type="submit" name="modifier" class="text-blue-600 hover:underline">Edit</button>
-                                        </form>
+                        <tbody id="booksGrid">
 
-                                        <form method="POST" action="../AdminController/Gestion_book.php" class="mr-2" onsubmit="return confirm('Are you sure you want to delete this book?');">
-                                            <input type="hidden" name="id" value="<?php echo $book['id']; ?>">
-                                            <button type="submit" name="deleteBook" class="text-red-600 hover:underline">Delete</button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            <?php endforeach ?>
                         </tbody>
+
                     </table>
                 </div>
             </main>
@@ -165,47 +177,49 @@ $categories = $admin->displayCategories();
         $bookToEdit = $stmt->fetch(PDO::FETCH_ASSOC);
         ?>
         <div class="fixed flex flex-col w-full h-full top-0 items-center justify-center bg-black bg-opacity-95">
-        <div class="mt-6 bg-white rounded-lg shadow-md p-4 w-1/3">
-            <h3 class="text-lg font-bold">Edit Book</h3>
-            <form method="POST" action="../AdminController/Gestion_book.php">
-                <input type="hidden" name="id" value="<?php echo $bookToEdit['id']; ?>">
-                <div class="mb-4">
-                    <label for="title" class="block text-sm font-medium text-gray-700">Title</label>
-                    <input type="text" name="title" value="<?php echo $bookToEdit['title']; ?>" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm">
-                </div>
-                <div class="mb-4">
-                    <label for="author" class="block text-sm font-medium text-gray-700">Author</label>
-                    <input type="text" name="author" value="<?php echo $bookToEdit['author']; ?>" required class="mt -1 block w-full border border-gray-300 rounded-md shadow-sm">
-                </div>
-                <div class="mb-4">
-                    <label for="cover_image" class="block text-sm font-medium text-gray-700">Cover Image URL</label>
-                    <input type="url" name="cover_image" value="<?php echo $bookToEdit['cover_image']; ?>" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm">
-                </div>
-                <div class="mb-4">
-                    <label for="summary" class="block text-sm font-medium text-gray-700">Summary</label>
-                    <textarea name="summary" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"><?php echo $bookToEdit['summary']; ?></textarea>
-                </div>
-                <div class="mb-4">
-                    <label for="category" class="block text-sm font-medium text-gray-700">Category</label>
-                    <select name="category" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm">
-                        <?php foreach ($categories as $category) : ?>
-                            <option value="<?php echo $category['id']; ?>" <?php echo ($category['id'] == $bookToEdit['category_id']) ? 'selected' : ''; ?>><?php echo $category['name'] ?></option>
-                        <?php endforeach ?>
-                    </select>
-                </div>
-                
-                <div class="flex justify-end gap-4">
-                    <a href="Books.php" class="bg-gray-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-md">
-                        Cancel
-                    </a>
-                    <button type="submit" name="updateBook" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md">
-                        Update
-                    </button>
-                </div>
+            <div class="mt-6 bg-white rounded-lg shadow-md p-4 w-1/3">
+                <h3 class="text-lg font-bold">Edit Book</h3>
+                <form method="POST" action="../AdminController/Gestion_book.php">
+                    <input type="hidden" name="id" value="<?php echo $bookToEdit['id']; ?>">
+                    <div class="mb-4">
+                        <label for="title" class="block text-sm font-medium text-gray-700">Title</label>
+                        <input type="text" name="title" value="<?php echo $bookToEdit['title']; ?>" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm">
+                    </div>
+                    <div class="mb-4">
+                        <label for="author" class="block text-sm font-medium text-gray-700">Author</label>
+                        <input type="text" name="author" value="<?php echo $bookToEdit['author']; ?>" required class="mt -1 block w-full border border-gray-300 rounded-md shadow-sm">
+                    </div>
+                    <div class="mb-4">
+                        <label for="cover_image" class="block text-sm font-medium text-gray-700">Cover Image URL</label>
+                        <input type="url" name="cover_image" value="<?php echo $bookToEdit['cover_image']; ?>" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm">
+                    </div>
+                    <div class="mb-4">
+                        <label for="summary" class="block text-sm font-medium text-gray-700">Summary</label>
+                        <textarea name="summary" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"><?php echo $bookToEdit['summary']; ?></textarea>
+                    </div>
+                    <div class="mb-4">
+                        <label for="category" class="block text-sm font-medium text-gray-700">Category</label>
+                        <select name="category" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm">
+                            <?php foreach ($categories as $category) : ?>
+                                <option value="<?php echo $category['id']; ?>" <?php echo ($category['id'] == $bookToEdit['category_id']) ? 'selected' : ''; ?>><?php echo $category['name'] ?></option>
+                            <?php endforeach ?>
+                        </select>
+                    </div>
 
-            </form>
-        </div></div>
+                    <div class="flex justify-end gap-4">
+                        <a href="Books.php" class="bg-gray-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-md">
+                            Cancel
+                        </a>
+                        <button type="submit" name="updateBook" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md">
+                            Update
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
     <?php endif; ?>
+
 
 
 
@@ -213,6 +227,56 @@ $categories = $admin->displayCategories();
         function closeForm() {
             document.getElementById('formOverlay').style.display = 'none';
         }
+
+        function fetchBooks() {
+            const category = $('#categoryFilter').val();
+            const filtrage = $('#statusFilter').val();
+
+            $.ajax({
+                url: '../AdminController/filtering_books.php',
+                method: 'POST',
+                data: {
+                    category: category,
+                    filtrage: filtrage,
+                },
+                success: function(response) {
+                    let booksHtml = '';
+                    response.forEach(book => {
+                        booksHtml += `
+                    <tr class="border-b hover:bg-gray-100">
+                        <td class="py-2 px-4"><img src="${book.cover_image}" alt="" width="50"></td>
+                        <td class="py-2 px-4 cursor-pointer hover:text-blue-700 hover:font-bold hover:underline">${book.title}</td>
+                        <td class="py-2 px-4">${book.author}</td>
+                        <td class="py-2 px-4">${book.category}</td>
+                        <td class="py-2 px-4">${book.borrowed_times || 0}</td>
+                        <td class="py-2 px-4">${book.status}</td>
+                        <td class="py-2 px-4 flex items-center w-full">
+                            <form method="POST" action="" class="mr-2">
+                                <input type="hidden" name="edit_id" value="${book.id}">
+                                <button type="submit" name="modifier" class="text-blue-600 hover:underline">Edit</button>
+                            </form>
+                            <form method="POST" action="../AdminController/Gestion_book.php" class="mr-2" onsubmit="return confirm('Are you sure you want to delete this book?');">
+                                <input type="hidden" name="id" value="${book.id}">
+                                <button type="submit" name="deleteBook" class="text-red-600 hover:underline">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                `;
+                    });
+                    $('#booksGrid').html(booksHtml);
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error:', error);
+                    $('#booksGrid').html('<tr><td colspan="7" class="text-center text-red-500 py-4">Failed to fetch books.</td></tr>');
+                }
+            });
+        }
+
+
+        $(document).ready(function() {
+            fetchBooks();
+            $('#categoryFilter, #statusFilter').on('change', fetchBooks);
+        });
     </script>
 
 
