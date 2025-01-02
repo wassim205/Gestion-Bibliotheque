@@ -2,15 +2,15 @@
 
 
 
-session_start();
-if($_SESSION['role'] != 'admin'){
-    header('Location: ../login.php');
-    exit;
-}
+// session_start();
 
 require_once '../Class/DatabaseClass.php';
 require_once '../AdminController/homepagecontroller.php';
 require_once '../AdminController/Gestion_users.php';
+if($_SESSION['role'] != 'admin'){
+    header('Location: ../login.php');
+    exit;
+}
 
 $database = new Database();
 $db = $database->connect();
