@@ -24,7 +24,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
             header('Location: ../AdminPages/Dashboard.php');
         }
         else{
-            header('Location: userpage.php');
+            $_SESSION['books_reserved'] = $user->getReservedBooks();
+            header('Location: ../userpage.php');
         }
 
     } else {
