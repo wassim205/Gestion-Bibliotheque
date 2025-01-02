@@ -1,6 +1,8 @@
 <?php
+
 require_once 'DatabaseClass.php';
 require_once 'BorrowingClass.php';
+
 
 class Book {
     private $id;
