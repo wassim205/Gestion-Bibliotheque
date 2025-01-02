@@ -1,6 +1,9 @@
 <?php
+
 require_once 'DatabaseClass.php';
 require_once 'BorrowingClass.php';
+
+
 class Book {
     private $id;
     private $title;
@@ -89,7 +92,7 @@ class Book {
 
     function getAllBooks() {
         $books = [];
-        $query = "SELECT books.id, books.title, books.status, books.author, categories.name AS category, books.cover_image, books.summary 
+        $query = "SELECT books.id, books.title, books.status, books.author, categories.name AS category, books.cover_image, books.summary
                     FROM books INNER JOIN categories ON books.category_id = categories.id ORDER BY books.status ASC";
 
         try {
@@ -117,21 +120,65 @@ class Book {
         return $books;
     }
 
-    public function searchBooks($searchTerm)
-    {
-        $query = "SELECT * FROM " . $this->table . " WHERE title LIKE :searchTerm";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindValue(':searchTerm', '%' . $searchTerm . '%', PDO::PARAM_STR);
-        $stmt->execute();
+    // public function searchBooks($searchTerm)
+    // {
+    //     $query = "SELECT * FROM " . $this->table . " WHERE title LIKE :searchTerm";
+    //     $stmt = $this->conn->prepare($query);
+    //     $stmt->bindValue(':searchTerm', '%' . $searchTerm . '%', PDO::PARAM_STR);
+    //     $stmt->execute();
 
-        $books = [];
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    //     $books = [];
+    //     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    //         $book = new self($this->conn);
+    //         $book->setId($row['id']);
+    //         $book->setTitle($row['title']);
+    //         $books[] = $book;
+    //     }
+    //     return $books;
+    // }
+
+    public function getBook($id){
+        $query = "SELECT * FROM " . $this->table . " WHERE id = :id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if($row){
             $book = new self($this->conn);
-            $book->setId($row['id']);
-            $book->setTitle($row['title']);
-            $books[] = $book;
+            $book->getId($row['id']);
+            $book->getTitle($row['title']);
+            $book->getAuthor($row['author']);
+            $book->getCategory($row['category_id']);
+            $book->getCoverImage($row['cover_image']);
+            $book->getSummary($row['summary']);
+            $book->getBookStatus($row['status']);
+            return $book;
         }
-        return $books;
+    }
+
+    public function borrowBook($id,$userId){
+        $query = "UPDATE " . $this->table . " SET status = 'borrowed' WHERE id = :id AND status = 'available'";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+        $database = new Database();
+        $db = $database->connect();
+        $inst_borrowing = new Borrowing($db);
+        $inst_borrowing->addBorrowingBook($id);
+    }
+    function reserve_book($book_id,$user_id){
+        $query = "INSERT INTO reservations (user_id, book_id) VALUES (:user_id, :book_id)";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+        $stmt->bindParam(':book_id', $book_id, PDO::PARAM_INT);
+        try {
+            $stmt->execute();
+            header('Location: ../userpage.php');
+            exit;
+        } catch (PDOException $e) {
+            error_log("Error adding reservation record: " . $e->getMessage());
+            return false;
+        }
     }
 }
 ?>

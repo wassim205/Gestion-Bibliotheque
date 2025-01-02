@@ -1,7 +1,6 @@
 <?php
 class User {
     private $conn;
-    private $table = 'users';
     private $id;
     private $name;
     private $email;
@@ -66,7 +65,7 @@ class User {
 
 
     function login() {
-        $query = "SELECT * FROM {$this->table} WHERE email = :email";
+        $query = "SELECT * FROM users WHERE email = :email";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':email', $this->email);
         $stmt->execute();
@@ -84,7 +83,7 @@ class User {
 
 
     function registerUser(){
-        $query = "SELECT * FROM {$this->table}";
+        $query = "SELECT * FROM users";
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
 
@@ -96,7 +95,7 @@ class User {
             return;
         }
 
-        $query = "SELECT * FROM {$this->table} WHERE email = :email";
+        $query = "SELECT * FROM users WHERE email = :email";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':email', $this->email);
         $stmt->execute();
@@ -113,7 +112,7 @@ class User {
 
     function register() {
 
-        $query = "INSERT INTO {$this->table} (email,name, password ,role) VALUES (:email, :name, :password ,:role)";
+        $query = "INSERT INTO users (email,name, password ,role) VALUES (:email, :name, :password ,:role)";
         $stmt = $this->conn->prepare($query);
 
         $hashedPassword = password_hash($this->password, PASSWORD_DEFAULT);
@@ -132,6 +131,102 @@ class User {
             exit;
         }
 
+
+    }
+
+
+    function getReservedBooks() {
+        $query = "SELECT reservations.id as reservation_id , books.id as book_id ,books.title as title, books.cover_image as cover_image , books.author as author ,reservation_date FROM users INNER JOIN reservations ON users.id = reservations.user_id INNER JOIN books ON reservations.book_id = books.id WHERE users.id = :user_id";
+        try {
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':user_id', $_SESSION['user_id'], PDO::PARAM_INT);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Database error in getReservedBooks: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    function getBorrowedBooks() {
+        $query = "SELECT borrowings.id as borrowing_id , return_date , books.id as book_id , borrow_date , due_date , books.title as title, books.cover_image as cover_image , books.author as author FROM users INNER JOIN borrowings ON users.id = borrowings.user_id INNER JOIN books ON borrowings.book_id = books.id WHERE borrowings.user_id = :user_id and borrowings.return_date is null";
+        try {
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':user_id', $_SESSION['user_id'], PDO::PARAM_INT);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        }
+        catch (PDOException $e) {
+            error_log("Database error in getBorrowedBooks: " . $e->getMessage());
+            return [];
+        }
+
+    }
+
+
+    function returnBook($borrowing_id , $book_id){
+        // $borrowing_id = (int)$borrow_id;
+        // $book_id = (int)$b_id;
+        $query = "UPDATE borrowings SET return_date = CURRENT_DATE() WHERE id = :borrowing_id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':borrowing_id', $borrowing_id, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $query = "UPDATE books SET status = 'available' WHERE id = :book_id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':book_id', $book_id, PDO::PARAM_INT);
+        $stmt->execute();
+        
+        $query = "SELECT * FROM reservations WHERE book_id = :book_id ORDER BY reservation_date ASC";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':book_id', $book_id, PDO::PARAM_INT);
+        $stmt->execute();
+        $reservations = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        if(count($reservations) > 0){
+            for($i = 0; $i < count($reservations); $i++){
+                if($i == 0){
+                    $query = "UPDATE books SET status = 'borrowed' WHERE id = :book_id";
+                    $stmt = $this->conn->prepare($query);
+                    $stmt->bindParam(':book_id', $reservations[$i]['book_id'], PDO::PARAM_INT);
+                    $stmt->execute();
+                    
+                    $query = "INSERT into borrowings (user_id , book_id , borrow_date , due_date) VALUES (:user_id , :book_id , CURRENT_DATE() , DATE_ADD(CURRENT_DATE(), INTERVAL 14 DAY))";
+                    $stmt = $this->conn->prepare($query);
+                    $stmt->bindParam(':user_id', $reservations[$i]['user_id'], PDO::PARAM_INT);
+                    $stmt->bindParam(':book_id', $reservations[$i]['book_id'], PDO::PARAM_INT);
+                    var_dump($_SESSION['user_id']);
+                    var_dump($reservations[$i]['book_id']);
+                    $stmt->execute();
+    
+                    $query = "DELETE FROM reservations WHERE id = :reservation_id";
+                    $stmt = $this->conn->prepare($query);
+                    $stmt->bindParam(':reservation_id', $reservations[$i]['id'], PDO::PARAM_INT);
+                    $stmt->execute();
+
+                    $this->getReservedBooks();
+                    $this->getBorrowedBooks();
+
+
+                }
+            }
+        }
+            
+
+    
+        header('Location: userProfile.php');
+        exit;
+    }
+
+    function cancelReservation($reservation_id){
+        $query = "DELETE FROM reservations WHERE id = :reservation_id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':reservation_id', $reservation_id, PDO::PARAM_INT);
+
+        $stmt->execute();
+
+        $this->getReservedBooks();
+        $this->getBorrowedBooks();
 
     }
 }

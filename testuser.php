@@ -1,6 +1,6 @@
 
 <?php
-
+session_start();
 require_once 'Class/BooksClass.php';
 require_once 'Class/DatabaseClass.php';
 require_once 'Class/CategoryClass.php';
@@ -119,7 +119,7 @@ $inst_Category = new Category($db);
                                 $categories = $inst_Category->getAllCategories();
                                 foreach ($categories as $category) : ?>
                                 <option value="<?=htmlspecialchars($category->getName()) ?>"> <?=htmlspecialchars($category->getName())?></option>;
-                                    
+
                                 <?php endforeach ; ?>
                                 </select>
                                 <!-- Status Filter -->
