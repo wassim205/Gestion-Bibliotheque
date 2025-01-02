@@ -1,5 +1,5 @@
 <?php
-require_once '../Class/DatabaseClass.php';
+require_once '/Class/DatabaseClass.php';
 
 class Book {
     private $id;
